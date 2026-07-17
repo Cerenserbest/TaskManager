@@ -21,7 +21,7 @@ namespace TaskManager.Services
             {
                 throw new TaskValidationException("Hata: Bitiş tarihi geçmiş bir tarih olamaz.");
             }
-
+            
             tasks.Add(task);
         }
         public IEnumerable<Task> GetAllTasks()
@@ -35,7 +35,7 @@ namespace TaskManager.Services
         public void UpdateTask(Guid id, Task updatedTask)
         {
             var existingTask = GetTaskById(id);
-            if (GetTaskById(id) != null)
+            if (GetTaskById(id) == null)
             {
                 throw new TaskValidationException($"Hata: {id} id'li görev bulunamadı.");
             }

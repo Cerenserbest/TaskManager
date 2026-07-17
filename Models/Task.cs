@@ -15,7 +15,7 @@ namespace TaskManager.Models
 		public Status Status;
         public DateTime? DueDate;
         public DateTime CreatedAt;
-        public DateTime? ComplatedAt;
+        public DateTime? CompletedAt;
 
         public Task()
         {
