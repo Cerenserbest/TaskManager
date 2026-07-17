@@ -64,5 +64,13 @@ namespace TaskManager.Services
 			return tasks.Where(t => t.Priority == priority);
             
         }
-    }
-}
+        public IEnumerable<Task> SearchTasks(string keyword)
+		{
+            if (string.IsNullOrWhiteSpace(keyword))
+                {
+                    return tasks;
+                }
+			return tasks.Where(t => t.Title.ToLower().Contains(keyword.ToLower()) || t.Description != null && t.Description.ToLower().Contains(keyword.ToLower()));
+
+		}
+}}
