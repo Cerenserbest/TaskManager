@@ -45,7 +45,21 @@ namespace TaskManager.Services
             existingTask.Status = updatedTask.Status;
             existingTask.DueDate = updatedTask.DueDate;
         }
-        public void DeleteTask(Guid id)
+        public void CompletedTask(Guid id)
+		{
+			var task = GetTaskById(id);
+			if (task == null)
+			{
+				throw new TaskValidationException($"Hata: {id} id'li görev bulunamadı.");
+			}
+
+            if (task.Status == Status.Completed) {
+				throw new TaskValidationException($"Hata: {id} id'li görev zaten tamamlanmış.");
+			}
+			task.Status = Status.Completed;
+			task.CompletedAt = DateTime.Now;
+		}
+		public void DeleteTask(Guid id)
         {
             var taskToDelete = GetTaskById(id);
             if (taskToDelete == null)

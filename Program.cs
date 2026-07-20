@@ -3,6 +3,7 @@ using TaskManager.Services;
 using TaskManager.Models;
 using TodoTask = TaskManager.Models.Task;
 using System.Linq.Expressions;
+using System.Text;
 
 TaskService taskService = new TaskService();
 bool running = true;
@@ -30,7 +31,12 @@ while (running)
 			string description = Console.ReadLine();
 			Console.WriteLine("Görev Önceliği (0-Low, 1-Medium, 2-High): ");
 			string priorityInput = Console.ReadLine();
-			Priority priority = (Priority)int.Parse(priorityInput);
+				if(!int.TryParse(priorityInput, out int priorityValue) || priorityValue < 0 || priorityValue > 2)
+				{
+					Console.WriteLine("Geçersiz öncelik değeri. Lütfen 0, 1 veya 2 girin.");
+					break;
+				}
+				Priority priority = (Priority)int.Parse(priorityInput);
 			Console.WriteLine("Görev Bitiş Tarihi (yyyy-MM-dd): ");
 			string dueDateInput = Console.ReadLine();
 			DateTime parsedDueDate = DateTime.Parse(dueDateInput);
@@ -71,7 +77,12 @@ while (running)
 		case "3": {
 				Console.WriteLine("Detayını Görmek İstediğiniz Görev ID: ");
 				string idInput = Console.ReadLine();
-				Guid taskId = Guid.Parse(idInput);
+				
+				if(!Guid.TryParse(idInput, out Guid taskId))
+				{
+					Console.WriteLine("Geçersiz ID formatı.");
+					break;
+				}
 				var task = taskService.GetTaskById(taskId);
 				if (task == null) {
 					Console.WriteLine("Görev bulunamadı.");
@@ -88,8 +99,12 @@ while (running)
 		case "4": {
 				Console.WriteLine("Güncellemek İstediğiniz Görev ID: ");
 				string idInput = Console.ReadLine();
-				Guid TaskId = Guid.Parse(idInput);
-				var task = taskService.GetTaskById(TaskId);
+				if (!Guid.TryParse(idInput, out Guid taskId))
+				{
+					Console.WriteLine("Geçersiz ID formatı.");
+					break;
+				}
+				var task = taskService.GetTaskById(taskId);
 				if (task == null)
 				{
 					Console.WriteLine("Görev bulunamadı.");
@@ -115,7 +130,11 @@ while (running)
 			{ 
 				Console.WriteLine("Tamamlamak İstediğiniz Görev ID: ");
 				string idInput = Console.ReadLine();
-				Guid taskId = Guid.Parse(idInput);
+				if (!Guid.TryParse(idInput, out Guid taskId))
+				{
+					Console.WriteLine("Geçersiz ID formatı.");
+					break;
+				}
 				var task = taskService.GetTaskById(taskId);
 				if (task == null)
 				{
@@ -123,18 +142,27 @@ while (running)
 				}
 				else
 				{
+					if (task.Status == Status.Completed)
+					{
+						Console.WriteLine("Hata: Bu görev zaten daha önce tamamlanmış!");
+						break; 
+					}
+
 					task.Status = Status.Completed;
 					task.CompletedAt = DateTime.Now;
 					Console.WriteLine("Görev başarıyla tamamlandı.");
-				}	
-			
-			break;
-			}
+					}
+
+				break;}
 		case "6":
 			{
 				Console.WriteLine("Silmek İstediğiniz Görev ID: ");
 				string idInput = Console.ReadLine();
-				Guid taskId = Guid.Parse(idInput);
+				if (!Guid.TryParse(idInput, out Guid taskId))
+				{
+					Console.WriteLine("Geçersiz ID formatı.");
+					break;
+				}
 				var task = taskService.GetTaskById(taskId);
 				if (task == null)
 				{
@@ -150,7 +178,7 @@ while (running)
 			}
 		case "7":
 			{
-				Console.WriteLine("Filtreleme Kriteri (1-Status, 2-Priority): ");
+				Console.WriteLine("Filtreleme Kriteri (1-Status, 2-Priority, 3-Gecikme, 4-Kelimeye Göre Arama): ");
 				string filterInput = Console.ReadLine();
 				if (filterInput == "1")
 				{
@@ -167,12 +195,31 @@ while (running)
 				{
 					Console.WriteLine("Öncelik (0-Low, 1-Medium, 2-High): ");
 					string filterPriorityInput = Console.ReadLine();
-                    Priority filterPriority = (Priority)int.Parse(filterPriorityInput);
+					Priority filterPriority = (Priority)int.Parse(filterPriorityInput);
 					var filteredTasks = taskService.GetTasksByPriority(filterPriority);
 					foreach (var task in filteredTasks)
 					{
 						Console.WriteLine($"ID: {task.Id}, Başlık: {task.Title}, Öncelik: {task.Priority}, Durum: {task.Status}");
 					}
+				}
+				else if (filterInput == "3") { 
+				 var overDueTasks = taskService.GetAllTasks().Where(t => t.DueDate.HasValue && t.DueDate.Value < DateTime.Now && t.Status != Status.Completed);
+					foreach (var task in overDueTasks)
+					{
+						Console.WriteLine($"ID: {task.Id}, Başlık: {task.Title}, Öncelik: {task.Priority}, Durum: {task.Status}, Bitiş Tarihi: {task.DueDate}");
+					}
+				}
+				else if(filterInput == "4")
+				{
+					Console.WriteLine("Aranacak Kelime: ");
+					string keyword = Console.ReadLine();
+					var filteredTasks = taskService.SearchTasks(keyword);
+					foreach (var task in filteredTasks)
+					{
+						Console.WriteLine($"ID: {task.Id}, Başlık: {task.Title}, Açıklama: {task.Description}, Öncelik: {task.Priority}, Durum: {task.Status}");
+					}
+
+
 				}
 				else
 				{
@@ -182,6 +229,7 @@ while (running)
 			break;}
 		case "8":
 			{
+
 				int toplamGorev = taskService.GetAllTasks().Count();
 				int TamamlananGorev = taskService.GetTasksByStatus(Status.Completed).Count();
 				Console.WriteLine("Toplam Görev Sayısı: " + taskService.GetAllTasks().Count());
