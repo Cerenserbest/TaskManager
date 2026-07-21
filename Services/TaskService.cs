@@ -17,7 +17,11 @@ namespace TaskManager.Services
             {
                 throw new TaskValidationException("Hata: Başlık boş olamaz ve 3 ile 100 karakter arasında olmalıdır.");
             }
-            if (task.DueDate != null && task.DueDate.Value < DateTime.Now)
+			if (!string.IsNullOrEmpty(task.Description) && task.Description.Length > 300)
+			{
+				throw new TaskValidationException("Hata: Açıklama 300 karakteri aşamaz.");
+			}
+			if (task.DueDate != null && task.DueDate.Value < DateTime.Now)
             {
                 throw new TaskValidationException("Hata: Bitiş tarihi geçmiş bir tarih olamaz.");
             }

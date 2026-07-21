@@ -39,7 +39,11 @@ while (running)
 				Priority priority = (Priority)int.Parse(priorityInput);
 			Console.WriteLine("Görev Bitiş Tarihi (yyyy.mm.dd): ");
 			string dueDateInput = Console.ReadLine();
-			DateTime parsedDueDate = DateTime.Parse(dueDateInput);
+				if (!DateTime.TryParse(dueDateInput, out DateTime parsedDueDate))
+				{
+					Console.WriteLine("Hata: Geçersiz tarih formatı. Görev eklenemedi.");
+					break;
+				}
 
 				try
 				{
@@ -122,8 +126,26 @@ while (running)
 					Console.WriteLine($"Mevcut Bitiş Tarihi: {task.DueDate}, Yeni Bitiş Tarihi (yyyy-MM-dd): ");
 					string updateDueDateInput = Console.ReadLine();
 					Priority updatePriority = (Priority)int.Parse(updatePriorityInput);
-					Priority updateStatus = (Priority)int.Parse(updateStatusInput);
+					Status updateStatus = (Status)int.Parse(updateStatusInput);
 
+					var updatedTask = new TodoTask
+					{
+						Title = updateTitle,
+						Description = updateDescription,
+						Priority = updatePriority,
+						Status = updateStatus,
+						DueDate = DateTime.Parse(updateDueDateInput)
+					};
+
+					try
+					{
+						taskService.UpdateTask(taskId, updatedTask);
+						Console.WriteLine("Görev başarıyla güncellendi.");
+					}
+					catch (Exception ex)
+					{
+						Console.WriteLine($"Hata: {ex.Message}");
+					}
 				}
 					break; }
 		case "5":
