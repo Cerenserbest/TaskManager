@@ -37,7 +37,7 @@ while (running)
 					break;
 				}
 				Priority priority = (Priority)int.Parse(priorityInput);
-			Console.WriteLine("Görev Bitiş Tarihi (yyyy-MM-dd): ");
+			Console.WriteLine("Görev Bitiş Tarihi (yyyy.mm.dd): ");
 			string dueDateInput = Console.ReadLine();
 			DateTime parsedDueDate = DateTime.Parse(dueDateInput);
 
@@ -178,7 +178,7 @@ while (running)
 			}
 		case "7":
 			{
-				Console.WriteLine("Filtreleme Kriteri (1-Status, 2-Priority, 3-Gecikme, 4-Kelimeye Göre Arama): ");
+				Console.WriteLine("Filtreleme Kriteri (1-Durum, 2-Öncelik, 3-Gecikme, 4-Kelimeye Göre Arama): ");
 				string filterInput = Console.ReadLine();
 				if (filterInput == "1")
 				{
