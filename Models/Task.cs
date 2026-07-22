@@ -8,13 +8,13 @@ namespace TaskManager.Models
 {
     internal class Task
     {
-       public Guid Id;
+       public Guid Id { get; private set; } //encapsulation
         public string Title;
         public string Description;
         public Priority Priority;
 		public Status Status;
         public DateTime? DueDate;
-        public DateTime CreatedAt;
+        public DateTime CreatedAt { get; private set; }
         public DateTime? CompletedAt;
 
         public Task()

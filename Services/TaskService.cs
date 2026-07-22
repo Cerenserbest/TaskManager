@@ -7,7 +7,7 @@ using TaskManager.Enum;
 
 namespace TaskManager.Services
 {
-    internal class TaskService
+    internal class TaskService : ITaskService
     {
         private readonly List<Task>
             tasks = new List<Task>();
@@ -17,9 +17,9 @@ namespace TaskManager.Services
             {
                 throw new TaskValidationException("Hata: Başlık boş olamaz ve 3 ile 100 karakter arasında olmalıdır.");
             }
-			if (!string.IsNullOrEmpty(task.Description) && task.Description.Length > 300)
+			if (!string.IsNullOrEmpty(task.Description) && task.Description.Length > 500)
 			{
-				throw new TaskValidationException("Hata: Açıklama 300 karakteri aşamaz.");
+				throw new TaskValidationException("Hata: Açıklama 500 karakteri aşamaz.");
 			}
 			if (task.DueDate != null && task.DueDate.Value < DateTime.Now)
             {

@@ -5,7 +5,7 @@ using TodoTask = TaskManager.Models.Task;
 using System.Linq.Expressions;
 using System.Text;
 
-TaskService taskService = new TaskService();
+ITaskService taskService = new TaskService();
 bool running = true;
 while (running) 
 {
@@ -125,8 +125,23 @@ while (running)
 					string updateStatusInput = Console.ReadLine();
 					Console.WriteLine($"Mevcut Bitiş Tarihi: {task.DueDate}, Yeni Bitiş Tarihi (yyyy-MM-dd): ");
 					string updateDueDateInput = Console.ReadLine();
+					if (!int.TryParse(updatePriorityInput, out int updatePriorityValue) || updatePriorityValue < 0 || updatePriorityValue > 2)
+					{
+						Console.WriteLine("Geçersiz öncelik değeri. Lütfen 0, 1 veya 2 girin.");
+						break;
+					}
 					Priority updatePriority = (Priority)int.Parse(updatePriorityInput);
+					if(!int.TryParse(updateStatusInput, out int updateStatusValue) || updateStatusValue < 0 || updateStatusValue > 2)
+					{
+						Console.WriteLine("Geçersiz durum değeri. Lütfen 0, 1 veya 2 girin.");
+						break;
+					}
 					Status updateStatus = (Status)int.Parse(updateStatusInput);
+					if(!DateTime.TryParse(updateDueDateInput, out DateTime parsedUpdateDueDate))
+					{
+						Console.WriteLine("Hata: Geçersiz tarih formatı. Görev güncellenemedi.");
+						break;
+					}
 
 					var updatedTask = new TodoTask
 					{
@@ -157,7 +172,7 @@ while (running)
 					Console.WriteLine("Geçersiz ID formatı.");
 					break;
 				}
-				var task = taskService.GetTaskById(taskId);
+				var task = taskService.GetTaskById(taskId); //try catch eklenebilir
 				if (task == null)
 				{
 					Console.WriteLine("Görev bulunamadı.");
@@ -206,6 +221,11 @@ while (running)
 				{
 					Console.WriteLine("Durum (0-Pending, 1-InProgress, 2-Completed): ");
 					string statusInput = Console.ReadLine();
+					if(!int.TryParse(statusInput, out int statusValue) || statusValue < 0 || statusValue > 2)
+					{
+						Console.WriteLine("Geçersiz durum değeri. Lütfen 0, 1 veya 2 girin.");
+						break;
+					}
 					Status status = (Status)int.Parse(statusInput);
 					var filteredTasks = taskService.GetTasksByStatus(status);
 					foreach (var task in filteredTasks)
@@ -217,6 +237,11 @@ while (running)
 				{
 					Console.WriteLine("Öncelik (0-Low, 1-Medium, 2-High): ");
 					string filterPriorityInput = Console.ReadLine();
+					if(!int.TryParse(filterPriorityInput, out int filterPriorityValue) || filterPriorityValue < 0 || filterPriorityValue > 2)
+					{
+						Console.WriteLine("Geçersiz öncelik değeri. Lütfen 0, 1 veya 2 girin.");
+						break;
+					}
 					Priority filterPriority = (Priority)int.Parse(filterPriorityInput);
 					var filteredTasks = taskService.GetTasksByPriority(filterPriority);
 					foreach (var task in filteredTasks)
@@ -255,8 +280,10 @@ while (running)
 				int toplamGorev = taskService.GetAllTasks().Count();
 				int TamamlananGorev = taskService.GetTasksByStatus(Status.Completed).Count();
 				Console.WriteLine("Toplam Görev Sayısı: " + taskService.GetAllTasks().Count());
+				Console.WriteLine("Beklemede Görev Sayısı: " + taskService.GetTasksByStatus(Status.Pending).Count());
+				Console.WriteLine("Devam Eden Görev Sayısı: " + taskService.GetTasksByStatus(Status.InProgress).Count());
 				Console.WriteLine("Tamamlanan Görev Sayısı: " + taskService.GetTasksByStatus(Status.Completed).Count());
-				Console.WriteLine("Tamamlanmamış Görev Sayısı: " + taskService.GetTasksByStatus(Status.Pending).Count());
+				Console.WriteLine("Gecikmiş Görev Sayısı: " + taskService.GetAllTasks().Count(t => t.DueDate.HasValue && t.DueDate.Value < DateTime.Now && t.Status != Status.Completed));
 				Console.WriteLine("Yüksek Öncelikli Görev Sayısı: " + taskService.GetTasksByPriority(Priority.High).Count());
 				Console.WriteLine("Orta Öncelikli Görev Sayısı: " + taskService.GetTasksByPriority(Priority.Medium).Count());
 				Console.WriteLine("Düşük Öncelikli Görev Sayısı: " + taskService.GetTasksByPriority(Priority.Low).Count());
